@@ -1,4 +1,4 @@
-package http.client.howto;
+package http.client;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
