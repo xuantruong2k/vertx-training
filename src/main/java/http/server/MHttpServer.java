@@ -73,7 +73,7 @@ public class MHttpServer {
     route = router.route("/some/path2/");
     route.handler(routingContext -> {
       HttpServerResponse response = routingContext.response();
-      response.end("route 2");
+      response.end("route 3");
     });
 
     // get param from request and response json object
