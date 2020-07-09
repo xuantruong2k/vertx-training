@@ -86,6 +86,14 @@ public class MHttpServer {
       jsonObj.put("userId", userId);
       jsonObj.put("transactionId", transactionId);
 
+      // test blocking code
+      try {
+        Thread.sleep(10000);
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+
       HttpServerResponse response = routingContext.response();
       response.end(jsonObj.encodePrettily());
     });
