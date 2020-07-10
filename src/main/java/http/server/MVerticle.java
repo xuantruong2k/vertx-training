@@ -4,9 +4,13 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 
@@ -21,6 +25,8 @@ public class MVerticle extends AbstractVerticle {
 
         // create http server
         Router router = createHttpServer();
+
+        vertx.eventBus().consumer("tv.news", message->this.messageHander(message));
 
         // bind the server
 //        server.requestHandler(router).listen(8080);
@@ -66,13 +72,45 @@ public class MVerticle extends AbstractVerticle {
                     .end("Hello from /some/path/ data: " + context.get("sharedData"));
         });
 
-        route = router.route("/some/anotherpath/");
+        route = router.route("/delivermessage/");
         route.handler(routingContext -> {
+            this.deliverMessage();
             routingContext.response()
                     .putHeader("content-type", "text/plain")
-                    .end("Hello from /some/antoherpath");
+                    .end("Hello from /delivermessage/");
         });
 
         return router;
+    }
+
+    private void messageHander(Message message) {
+        System.out.println("Verticle has received a message: " + message.body());
+    }
+
+    private int messageId = 0;
+    private int messageId2 = 0;
+
+    private void deliverMessage() {
+        EventBus eventBus = vertx.eventBus();
+
+        System.out.println("\n");
+
+        JsonObject obj = new JsonObject();
+        obj.put("key", "value").put("foo", 123).put("bool", true);
+
+        messageId++;
+        eventBus.publish("tv.news", "PUBLISH from tv.news - message id: " + messageId);
+        eventBus.send("tv.news", "SEND from tv.news - message id: " + messageId);
+
+        messageId2++;
+//        eventBus.publish("mobile.news", "PUBLISH from mobile.news - message id: " + messageId2);
+//        eventBus.send("mobile.news","SEND from mobile.news - message id: " + messageId2);
+
+//        eventBus.request("mobile.news", "REQUEST from mobile.news - message id: " + messageId2, ar -> {
+        eventBus.request("mobile.news", obj.encode(), ar -> {
+            if (ar.succeeded()) {
+                System.out.println("Received reply: " + ar.result().body());
+            }
+        });
     }
 }
