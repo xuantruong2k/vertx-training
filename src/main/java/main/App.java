@@ -3,7 +3,10 @@
  */
 package main;
 
+import io.vertx.core.Vertx;
 import http.server.MHttpServer;
+import http.server.MVerticle;
+import http.server.MVerticle2;
 
 public class App {
 
@@ -12,9 +15,33 @@ public class App {
     }
 
     public static void main(String[] args) {
-        // Vertx vertx = Vertx.vertx();
-        // vertx.deployVerticle(new JokeVerticle());
+         Vertx vertx = Vertx.vertx();
+//         vertx.deployVerticle(new JokeVerticle());
 
-        new MHttpServer().startServer();
+//        new MHttpServer().startServer();
+
+        System.out.println("create new MVerticle instance");
+        MVerticle verticle = new MVerticle();
+//        vertx.deployVerticle(verticle);
+        // waiting for deployment complete
+        vertx.deployVerticle(verticle, res -> {
+            if (res.succeeded()) {
+                System.out.println("Verticle - Deployment id is: " + res.result());
+            } else {
+                System.out.println("Verticle - Deployment failed!");
+            }
+        });
+
+        System.out.println("create new MVerticle 2 instance");
+        MVerticle2 verticle2 = new MVerticle2();
+        vertx.deployVerticle(verticle2, res -> {
+            if (res.succeeded()) {
+                System.out.println("Verticle 2 - Deployment id is: " + res.result());
+            } else {
+                System.out.println("Verticle 2 - Deployement failed");
+            }
+        });
+
+        System.out.print("after deployVerticle method");
     }
 }
