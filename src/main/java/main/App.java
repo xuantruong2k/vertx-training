@@ -3,6 +3,7 @@
  */
 package main;
 
+import http.server.HttpServerVerticle;
 import io.vertx.core.Vertx;
 import tcp.client.TCPClientVerticle;
 import tcp.server.TCPServerVerticle;
@@ -47,10 +48,15 @@ public class App {
 //        System.out.print("after deployVerticle method");
 
         // start tcp server
-        TCPServerVerticle tcpServerVerticle = new TCPServerVerticle();
-        vertx.deployVerticle(tcpServerVerticle);
+//        TCPServerVerticle tcpServerVerticle = new TCPServerVerticle();
+//        vertx.deployVerticle(tcpServerVerticle);
+//
+//        TCPClientVerticle tcpClientVerticle = new TCPClientVerticle();
+//        vertx.deployVerticle(tcpClientVerticle);
 
-        TCPClientVerticle tcpClientVerticle = new TCPClientVerticle();
-        vertx.deployVerticle(tcpClientVerticle);
+        // start http server
+        HttpServerVerticle httpServerVerticle = new HttpServerVerticle();
+        vertx.deployVerticle(httpServerVerticle);
+
     }
 }
