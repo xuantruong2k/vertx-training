@@ -2,11 +2,15 @@ package http.server;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.PfxOptions;
+import io.vertx.core.net.SelfSignedCertificate;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
+import tcp.server.TCPServerVerticle;
 
 public class HttpServerVerticle extends AbstractVerticle {
 
@@ -22,8 +26,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
         Router router = createHttpServer();
 
-//        server.requestHandler(router).listen(HTTP_PORT, HTTP_HOST);
-        server.requestHandler(router).listen(HTTP_PORT, res -> {
+        server.requestHandler(router).listen(HTTP_PORT, HTTP_HOST, res -> {
             if (res.succeeded()) {
                 System.out.println("HttpServer - listen on " + HTTP_PORT);
             } else {
@@ -34,7 +37,21 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     private Router createHttpServer() {
 
-        server = vertx.createHttpServer();
+//        PfxOptions pfxOptions = new PfxOptions()
+//                .setPath(TCPServerVerticle.KEY_PATH)
+//                .setPassword(TCPServerVerticle.KEY_PASS);
+//        HttpServerOptions options = new HttpServerOptions();
+//        options.setSsl(true);
+//        options.setPfxKeyCertOptions(pfxOptions);
+//        options.setPfxTrustOptions(pfxOptions);
+
+        SelfSignedCertificate certificate = SelfSignedCertificate.create();
+        HttpServerOptions options = new HttpServerOptions()
+                .setSsl(true)
+                .setKeyCertOptions(certificate.keyCertOptions())
+                .setTrustOptions(certificate.trustOptions());
+
+        server = vertx.createHttpServer(options);
 
         Router router = Router.router(vertx);
 
