@@ -1,20 +1,39 @@
 package tcp.client;
 
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetSocket;
+import io.vertx.core.net.PfxOptions;
+import tcp.server.TCPServerVerticle;
 
 public class TCPClientVerticle extends AbstractVerticle {
 
-    final int TCP_PORT = 12345;
-    final String TCP_HOST = "localhost";
+    public static final String CLIENT_KEY_PATH = "./keys/client.keystore";
 
     @Override
     public void start() {
-        NetClient client = vertx.createNetClient();
-        client.connect(TCP_PORT, TCP_HOST, res -> {
+
+        PfxOptions pfxOptions = new PfxOptions()
+//                .setPath(TCPServerVerticle.KEY_PATH)
+                .setPath(CLIENT_KEY_PATH)
+                .setPassword(TCPServerVerticle.KEY_PASS);
+
+
+//        NetClientOptions options = new NetClientOptions()
+//                .setSsl(true)
+//                .setTrustAll(true)
+//                .setPfxTrustOptions(pfxOptions);
+        NetClientOptions options = new NetClientOptions()
+                .setSsl(true)
+                .setTrustAll(true)
+                .setPfxKeyCertOptions(pfxOptions);
+
+        NetClient client = vertx.createNetClient(options);
+
+//        NetClient client = vertx.createNetClient();
+
+        client.connect(TCPServerVerticle.TCP_PORT, TCPServerVerticle.TCP_HOST, res -> {
            if (res.succeeded()) {
                NetSocket socket = res.result();
                socket.handler(buffer -> {

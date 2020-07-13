@@ -2,18 +2,31 @@ package tcp.server;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.ClientAuth;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
+import io.vertx.core.net.PfxOptions;
 
 public class TCPServerVerticle extends AbstractVerticle {
 
-    final int TCP_PORT = 12345;
-    final String TCP_HOST = "localhost";
+    public static final int TCP_PORT = 12345;
+    public static final String TCP_HOST = "localhost";
+    public static final String KEY_PATH = "./keys/server.keystore";
+    public static final String KEY_PASS = "abcd@1234";
     
     @Override
     public void start() {
 
-        NetServerOptions options = new NetServerOptions().setPort(TCP_PORT).setHost(TCP_HOST);
+        PfxOptions pfxOptions = new PfxOptions()
+                        .setPath(TCPServerVerticle.KEY_PATH)
+                        .setPassword(TCPServerVerticle.KEY_PASS);
+
+        NetServerOptions options = new NetServerOptions()
+                .setPort(TCP_PORT)
+                .setHost(TCP_HOST)
+                .setSsl(true)
+//                .setClientAuth(ClientAuth.REQUIRED)
+                .setPfxKeyCertOptions(pfxOptions);
         NetServer server = vertx.createNetServer(options);
 
         server.connectHandler(socket -> {
@@ -28,13 +41,13 @@ public class TCPServerVerticle extends AbstractVerticle {
             Buffer buffer = Buffer.buffer().appendString(str);
             socket.write(buffer);
         });
-//        server.listen();
-        server.listen(res -> {
-            if (res.succeeded()) {
-                System.out.println("[SERVER] Server is now listening");
-            } else {
-                System.out.println("[SERVER] Failed to bind!");
-            }
-        });
+        server.listen();
+//        server.listen(res -> {
+//            if (res.succeeded()) {
+//                System.out.println("[SERVER] Server is now listening");
+//            } else {
+//                System.out.println("[SERVER] Failed to bind!");
+//            }
+//        });
     }
 }
